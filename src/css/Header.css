@@ -1,0 +1,200 @@
+/* Header styles for HilTim Hotel */
+.app-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 2rem;
+    background: linear-gradient(135deg, #003580 0%, #0071c2 100%);
+    color: white;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.logo {
+    margin: 0;
+    font-size: 2.2rem;
+    font-weight: bold;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.logo-link {
+    text-decoration: none;
+    color: white;
+    transition: color 0.3s ease;
+}
+
+.logo-link:hover {
+    color: #f0b90b;
+}
+
+.nav-menu {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+}
+
+.nav-link {
+    text-decoration: none;
+    color: white;
+    font-size: 1.1rem;
+    font-weight: 500;
+    padding: 0.5rem 1rem;
+    border-radius: 5px;
+    border-bottom: 2px solid transparent;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.nav-link:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-bottom-color: #f0b90b;
+}
+
+.nav-link.active {
+    background-color: rgba(240, 185, 11, 0.2);
+    border-bottom-color: #f0b90b;
+}
+
+/* User Section */
+.user-section {
+    margin-left: auto;
+}
+
+.login-button {
+    background: linear-gradient(135deg, #f0b90b 0%, #d4a009 100%);
+    color: #1a1a2e;
+    border: none;
+    padding: 0.7rem 1.5rem;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.95rem;
+}
+
+.login-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(240, 185, 11, 0.3);
+}
+
+.user-menu {
+    position: relative;
+}
+
+.user-button {
+    background: transparent;
+    border: 2px solid #f0b90b;
+    color: white;
+    padding: 0.6rem 1rem;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.user-button:hover {
+    background-color: rgba(240, 185, 11, 0.1);
+}
+
+.user-icon {
+    font-size: 1.2rem;
+}
+
+.user-name {
+    font-size: 0.95rem;
+}
+
+.user-dropdown {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+    margin-top: 0.5rem;
+    min-width: 200px;
+    z-index: 1000;
+    overflow: hidden;
+    border: 1px solid #e0e0e0;
+}
+
+.user-info {
+    padding: 1rem;
+    border-bottom: 1px solid #f0f0f0;
+    background-color: #f8f9fa;
+}
+
+.user-full-name {
+    font-weight: bold;
+    color: #1a1a2e;
+    margin: 0 0 0.25rem;
+    font-size: 0.95rem;
+}
+
+.user-email {
+    color: #666;
+    margin: 0;
+    font-size: 0.85rem;
+}
+
+.user-actions {
+    padding: 0.5rem 0;
+}
+
+.dropdown-link {
+    display: block;
+    padding: 0.75rem 1rem;
+    color: #333;
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: background-color 0.3s ease;
+}
+
+.dropdown-link:hover {
+    background-color: #f8f9fa;
+    color: #0071c2;
+}
+
+.dropdown-button {
+    width: 100%;
+    background: none;
+    border: none;
+    padding: 0.75rem 1rem;
+    text-align: left;
+    color: #dc3545;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: background-color 0.3s ease;
+}
+
+.dropdown-button:hover {
+    background-color: #fff5f5;
+}
+
+@media (max-width: 768px) {
+    .app-header {
+        flex-direction: column;
+        padding: 1rem;
+        gap: 1rem;
+    }
+    
+    .nav-menu {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 1rem;
+    }
+    
+    .logo {
+        font-size: 1.8rem;
+    }
+    
+    .nav-link {
+        font-size: 1rem;
+        padding: 0.4rem 0.8rem;
+    }
+}

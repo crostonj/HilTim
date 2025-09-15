@@ -1,0 +1,38 @@
+.app-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 2rem;
+    background-color: #003580;
+    color: white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.logo {
+    margin: 0;
+    font-size: 2rem;
+    font-weight: bold;
+}
+
+.logo-link {
+    text-decoration: none;
+    color: white;
+}
+
+.nav-link {
+    margin-left: 1.5rem;
+    text-decoration: none;
+    color: white;
+    font-size: 1.1rem;
+    padding-bottom: 5px;
+    border-bottom: 2px solid transparent;
+    transition: border-color 0.3s ease;
+}
+
+.nav-link:hover {
+    border-bottom-color: #f0b90b;
+}
+
+.nav-link.active {
+    border-bottom-color: #f0b90b;
+}
