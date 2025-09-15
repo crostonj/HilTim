@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { useLocation, useSearchParams } from 'react-router-dom';
+import { useLocation, useSearchParams, useNavigate } from 'react-router-dom';
 import { useUser } from './context/UserContext';
 import LoginRegister from './components/LoginRegister';
+import bookingService from './services/bookingService';
 import './css/BookingPage.css';
 
 const BookingPage = () => {
   const { currentUser, isLoggedIn } = useUser();
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [isModifyMode, setIsModifyMode] = useState(false);
   const [originalBookingId, setOriginalBookingId] = useState(null);
@@ -134,27 +136,51 @@ const BookingPage = () => {
       nights
     };
     
-    console.log('Booking Data:', bookingData);
+    // Validate booking data
+    const validation = bookingService.validateBookingData(bookingData);
+    if (!validation.valid) {
+      alert(`Please fix the following errors:\n\n${validation.errors.join('\n')}`);
+      return;
+    }
     
-    // Handle booking creation or modification
+    // Handle booking creation or modification using service
     if (isModifyMode) {
-      alert(`Booking ${originalBookingId} successfully updated for ${currentUser.firstName}!
+      const result = bookingService.updateBooking(originalBookingId, bookingData);
       
-      Updated Details:
-      Room: ${formData.roomType} 
-      Check-in: ${formData.checkIn}
-      Check-out: ${formData.checkOut}
-      Nights: ${nights}
-      Total: $${totalPrice}
-      
-      A confirmation email with your updated reservation details has been sent to ${currentUser.email}.`);
+      if (result.success) {
+        alert(`Booking ${originalBookingId} successfully updated for ${currentUser.firstName}!
+        
+        Updated Details:
+        Room: ${bookingData.roomType} 
+        Check-in: ${bookingData.checkIn}
+        Check-out: ${bookingData.checkOut}
+        Nights: ${nights}
+        Total: $${totalPrice}
+        
+        A confirmation email with your updated reservation details has been sent to ${currentUser.email}.`);
+        
+        // Navigate back to My Bookings
+        navigate('/my-bookings');
+      } else {
+        alert(`Error updating booking: ${result.error}`);
+      }
     } else {
-      alert(`Booking confirmed for ${currentUser.firstName}! 
-      Room: ${formData.roomType} 
-      Nights: ${nights}
-      Total: $${totalPrice}
+      const result = bookingService.createBooking(bookingData);
       
-      We will send a confirmation email to ${currentUser.email}.`);
+      if (result.success) {
+        alert(`Booking confirmed for ${currentUser.firstName}! 
+        Booking ID: ${result.booking.id}
+        Room: ${bookingData.roomType} 
+        Nights: ${nights}
+        Total: $${totalPrice}
+        
+        We will send a confirmation email to ${currentUser.email}.`);
+        
+        // Navigate to My Bookings to show the new booking
+        navigate('/my-bookings');
+      } else {
+        alert(`Error creating booking: ${result.error}`);
+      }
     }
   };
 

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useUser } from '../context/UserContext';
+import bookingService from '../services/bookingService';
 import './css/MyBookings.css';
 
 const MyBookings = () => {
@@ -13,41 +14,17 @@ const MyBookings = () => {
 
   useEffect(() => {
     if (currentUser) {
-      // Simulate loading bookings (in a real app, this would fetch from API/CSV)
-      setTimeout(() => {
-        const sampleBookings = [
-          {
-            id: 'BK001',
-            roomType: 'Ocean View Suite',
-            checkIn: '2025-10-15',
-            checkOut: '2025-10-20',
-            guests: 2,
-            totalPrice: 1100,
-            nights: 5,
-            status: 'confirmed',
-            dateCreated: '2025-09-10',
-            specialRequests: 'Late checkout, champagne welcome',
-            activityPackages: ['Pearl Harbor Historical Package', 'Ocean Explorer Package'],
-            amenityPackages: ['Spa & Wellness Package']
-          },
-          {
-            id: 'BK002',
-            roomType: 'Standard Room',
-            checkIn: '2025-12-22',
-            checkOut: '2025-12-27',
-            guests: 2,
-            totalPrice: 750,
-            nights: 5,
-            status: 'confirmed',
-            dateCreated: '2025-09-05',
-            specialRequests: 'Ground floor room preferred',
-            activityPackages: ['Cultural Immersion Package'],
-            amenityPackages: ['Romance & Couples Package']
-          }
-        ];
-        setBookings(sampleBookings);
-        setIsLoading(false);
-      }, 1000);
+      // Load user bookings from service
+      const result = bookingService.getBookingsByUserId(currentUser.id);
+      
+      if (result.success) {
+        setBookings(result.bookings);
+      } else {
+        console.error('Error loading bookings:', result.error);
+        setBookings([]);
+      }
+      
+      setIsLoading(false);
     }
   }, [currentUser]);
 
@@ -91,15 +68,21 @@ const MyBookings = () => {
     const isConfirmed = window.confirm(`Are you sure you want to cancel booking ${booking.id}?\n\nRoom: ${booking.roomType}\nDates: ${formatDate(booking.checkIn)} - ${formatDate(booking.checkOut)}\n\nThis action cannot be undone.`);
     
     if (isConfirmed) {
-      // Update booking status to cancelled
-      setBookings(prevBookings => 
-        prevBookings.map(b => 
-          b.id === booking.id 
-            ? { ...b, status: 'cancelled' }
-            : b
-        )
-      );
-      alert(`Booking ${booking.id} has been cancelled successfully.`);
+      const result = bookingService.deleteBooking(booking.id);
+      
+      if (result.success) {
+        // Update local state to reflect the cancellation
+        setBookings(prevBookings => 
+          prevBookings.map(b => 
+            b.id === booking.id 
+              ? { ...b, status: 'cancelled' }
+              : b
+          )
+        );
+        alert(`${result.message}\n\nBooking ${booking.id} has been cancelled successfully.`);
+      } else {
+        alert(`Error cancelling booking: ${result.error}`);
+      }
     }
   };
 
