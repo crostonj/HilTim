@@ -7,22 +7,30 @@ const BookingAdmin = () => {
   const [stats, setStats] = useState(null);
   const [selectedBooking, setSelectedBooking] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [showImportModal, setShowImportModal] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
 
   useEffect(() => {
     loadData();
   }, []);
 
-  const loadData = () => {
-    // Load all bookings
-    const allBookings = bookingService.getAllBookings();
-    setBookings(allBookings);
+  const loadData = async () => {
+    setLoading(true);
+    try {
+      // Load all bookings from CSV database
+      const allBookings = bookingService.getAllBookings();
+      setBookings(allBookings);
 
-    // Load stats
-    const statsResult = bookingService.getBookingStats();
-    if (statsResult.success) {
-      setStats(statsResult.stats);
+      // Load stats
+      const statsResult = bookingService.getBookingStats();
+      if (statsResult.success) {
+        setStats(statsResult.stats);
+      }
+
+      console.log(`📊 Loaded ${allBookings.length} bookings from CSV database`);
+    } catch (error) {
+      console.error('Error loading data:', error);
     }
-
     setLoading(false);
   };
 
@@ -37,26 +45,134 @@ const BookingAdmin = () => {
     }
   };
 
-  const handlePermanentDelete = (bookingId) => {
-    if (window.confirm(`Permanently delete booking ${bookingId}? This cannot be undone.`)) {
-      const result = bookingService.permanentlyDeleteBooking(bookingId);
+  const handleExportCSV = () => {
+    try {
+      const result = bookingService.exportBookingsCSV();
       if (result.success) {
-        alert(result.message);
-        loadData(); // Reload data
+        alert(`✅ ${result.message}\n\nThe CSV database file has been downloaded to your computer.`);
       } else {
-        alert(`Error: ${result.error}`);
+        alert(`❌ Export failed: ${result.error}`);
       }
+    } catch (error) {
+      alert(`❌ Export failed: ${error.message}`);
     }
   };
 
-  const handleReactivateBooking = (bookingId) => {
-    const result = bookingService.updateBooking(bookingId, { status: 'confirmed' });
-    if (result.success) {
-      alert('Booking reactivated successfully');
-      loadData(); // Reload data
-    } else {
-      alert(`Error: ${result.error}`);
+  const handleLoadDatabase = (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    setIsProcessing(true);
+    
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+      try {
+        const csvContent = e.target.result;
+        const result = await bookingService.loadCSVDatabase(file);
+        
+        if (result.success) {
+          alert(`✅ ${result.message}\n\nCSV database has been loaded successfully.`);
+          await loadData(); // Refresh data
+        } else {
+          alert(`❌ Failed to load database: ${result.error}`);
+        }
+      } catch (error) {
+        alert(`❌ Failed to load database: ${error.message}`);
+      }
+      setIsProcessing(false);
+    };
+
+    reader.onerror = () => {
+      alert('❌ Failed to read CSV file');
+      setIsProcessing(false);
+    };
+
+    reader.readAsText(file);
+    // Reset file input
+    event.target.value = '';
+  };
+
+  const handleImportCSV = (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    setIsProcessing(true);
+    
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+      try {
+        const csvContent = e.target.result;
+        const result = await bookingService.importBookingsFromCSV(csvContent);
+        
+        if (result.success) {
+          let message = `✅ ${result.message}`;
+          if (result.errors) {
+            message += `\n\nWarnings:\n${result.errors.slice(0, 5).join('\n')}`;
+            if (result.errors.length > 5) {
+              message += `\n... and ${result.errors.length - 5} more warnings`;
+            }
+          }
+          alert(message);
+          await loadData(); // Refresh data
+          setShowImportModal(false);
+        } else {
+          let message = `❌ Import failed: ${result.error}`;
+          if (result.errors) {
+            message += `\n\nErrors:\n${result.errors.slice(0, 5).join('\n')}`;
+            if (result.errors.length > 5) {
+              message += `\n... and ${result.errors.length - 5} more errors`;
+            }
+          }
+          alert(message);
+        }
+      } catch (error) {
+        alert(`❌ Import failed: ${error.message}`);
+      }
+      setIsProcessing(false);
+    };
+
+    reader.onerror = () => {
+      alert('❌ Failed to read CSV file');
+      setIsProcessing(false);
+    };
+
+    reader.readAsText(file);
+    // Reset file input
+    event.target.value = '';
+  };
+
+  const handlePermanentDelete = async (bookingId) => {
+    if (window.confirm(`Permanently delete booking ${bookingId}? This cannot be undone.`)) {
+      setIsProcessing(true);
+      try {
+        const result = await bookingService.permanentlyDeleteBooking(bookingId);
+        if (result.success) {
+          alert(result.message);
+          await loadData(); // Reload data
+        } else {
+          alert(`Error: ${result.error}`);
+        }
+      } catch (error) {
+        alert(`Error: ${error.message}`);
+      }
+      setIsProcessing(false);
     }
+  };
+
+  const handleReactivateBooking = async (bookingId) => {
+    setIsProcessing(true);
+    try {
+      const result = await bookingService.updateBooking(bookingId, { status: 'confirmed' });
+      if (result.success) {
+        alert('Booking reactivated successfully');
+        await loadData(); // Reload data
+      } else {
+        alert(`Error: ${result.error}`);
+      }
+    } catch (error) {
+      alert(`Error: ${error.message}`);
+    }
+    setIsProcessing(false);
   };
 
   const formatDate = (dateString) => {
@@ -105,11 +221,44 @@ const BookingAdmin = () => {
       )}
 
       {/* Filter Controls */}
-      <div className="filter-controls">
-        <button onClick={() => handleStatusFilter('all')}>All Bookings</button>
-        <button onClick={() => handleStatusFilter('confirmed')}>Confirmed</button>
-        <button onClick={() => handleStatusFilter('pending')}>Pending</button>
-        <button onClick={() => handleStatusFilter('cancelled')}>Cancelled</button>
+      <div className="admin-controls">
+        <div className="filter-controls">
+          <button onClick={() => handleStatusFilter('all')}>All Bookings</button>
+          <button onClick={() => handleStatusFilter('confirmed')}>Confirmed</button>
+          <button onClick={() => handleStatusFilter('pending')}>Pending</button>
+          <button onClick={() => handleStatusFilter('cancelled')}>Cancelled</button>
+        </div>
+
+        <div className="csv-controls">
+          <button 
+            className="load-db-btn" 
+            onClick={() => document.getElementById('loadDbInput').click()}
+            disabled={isProcessing}
+          >
+            📂 {isProcessing ? 'Loading...' : 'Load CSV Database'}
+          </button>
+          <input
+            id="loadDbInput"
+            type="file"
+            accept=".csv"
+            onChange={handleLoadDatabase}
+            style={{ display: 'none' }}
+          />
+          <button 
+            className="export-btn" 
+            onClick={handleExportCSV}
+            disabled={isProcessing}
+          >
+            📥 Export Database
+          </button>
+          <button 
+            className="import-btn" 
+            onClick={() => setShowImportModal(true)}
+            disabled={isProcessing}
+          >
+            📤 {isProcessing ? 'Processing...' : 'Replace Database'}
+          </button>
+        </div>
       </div>
 
       {/* Bookings Table */}
@@ -238,6 +387,60 @@ const BookingAdmin = () => {
                   <p>{selectedBooking.specialRequests}</p>
                 </div>
               )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* CSV Import Modal */}
+      {showImportModal && (
+        <div className="modal-overlay" onClick={() => setShowImportModal(false)}>
+          <div className="modal-content import-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>Replace CSV Database</h2>
+              <button 
+                className="close-btn" 
+                onClick={() => setShowImportModal(false)}
+              >
+                ×
+              </button>
+            </div>
+            
+            <div className="modal-body">
+              <div className="import-instructions">
+                <h4>⚠️ Database Replacement Warning:</h4>
+                <p><strong>This will completely replace your current CSV database!</strong></p>
+                <ul>
+                  <li>All existing bookings will be replaced with the CSV data</li>
+                  <li>CSV must include these columns: id, checkIn, checkOut, adults, roomType, firstName, lastName, email</li>
+                  <li>Date format: YYYY-MM-DD (e.g., 2025-12-01)</li>
+                  <li>Activity/Amenity packages: separate multiple items with semicolons</li>
+                  <li>Invalid rows will be skipped with error messages</li>
+                  <li>A new database backup will be automatically downloaded</li>
+                </ul>
+              </div>
+
+              <div className="file-upload-area">
+                <input
+                  type="file"
+                  accept=".csv"
+                  onChange={handleImportCSV}
+                  id="csv-upload"
+                  style={{ display: 'none' }}
+                />
+                <label htmlFor="csv-upload" className="upload-label">
+                  📁 Choose CSV Database File
+                </label>
+                <p>Select a CSV file to replace the current database</p>
+              </div>
+
+              <div className="sample-format">
+                <h4>📄 Sample CSV Format:</h4>
+                <pre>
+id,userId,checkIn,checkOut,adults,roomType,firstName,lastName,email
+BK003,user456,2025-12-01,2025-12-05,2,singleKing,Jane,Smith,jane@email.com
+                </pre>
+              </div>
             </div>
           </div>
         </div>

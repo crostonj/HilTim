@@ -81,14 +81,29 @@
 }
 
 /* Filter Controls */
+.admin-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
 .filter-controls {
     display: flex;
     gap: 1rem;
-    margin-bottom: 2rem;
     flex-wrap: wrap;
 }
 
-.filter-controls button {
+.csv-controls {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.filter-controls button,
+.csv-controls button {
     padding: 0.75rem 1.5rem;
     border: 2px solid #0071c2;
     background: white;
@@ -99,10 +114,50 @@
     font-weight: 500;
 }
 
-.filter-controls button:hover {
+.filter-controls button:hover,
+.csv-controls button:hover {
     background: #0071c2;
     color: white;
     transform: translateY(-2px);
+}
+
+.export-btn {
+    background: #28a745 !important;
+    border-color: #28a745 !important;
+    color: white !important;
+}
+
+.export-btn:hover {
+    background: #1e7e34 !important;
+    border-color: #1e7e34 !important;
+}
+
+.import-btn {
+    background: #f0b90b !important;
+    border-color: #f0b90b !important;
+    color: white !important;
+}
+
+.import-btn:hover {
+    background: #d39e00 !important;
+    border-color: #d39e00 !important;
+}
+
+.load-db-btn {
+    background: #007bff !important;
+    border-color: #007bff !important;
+    color: white !important;
+}
+
+.load-db-btn:hover {
+    background: #0056b3 !important;
+    border-color: #0056b3 !important;
+}
+
+.csv-controls button:disabled {
+    opacity: 0.6 !important;
+    cursor: not-allowed !important;
+    transform: none !important;
 }
 
 /* Bookings Table */
@@ -326,6 +381,95 @@ tr:hover {
     line-height: 1.6;
 }
 
+/* Import Modal Styles */
+.import-modal {
+    max-width: 700px;
+}
+
+.import-instructions {
+    background: #e3f2fd;
+    border-left: 4px solid #2196f3;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    border-radius: 8px;
+}
+
+.import-instructions h4 {
+    color: #1976d2;
+    margin-bottom: 1rem;
+}
+
+.import-instructions ul {
+    margin: 0;
+    padding-left: 1.5rem;
+}
+
+.import-instructions li {
+    margin-bottom: 0.5rem;
+    color: #333;
+}
+
+.file-upload-area {
+    text-align: center;
+    padding: 2rem;
+    border: 2px dashed #0071c2;
+    border-radius: 12px;
+    margin-bottom: 2rem;
+    background: #f8f9fa;
+    transition: all 0.3s;
+}
+
+.file-upload-area:hover {
+    border-color: #003580;
+    background: #e3f2fd;
+}
+
+.upload-label {
+    display: inline-block;
+    padding: 1rem 2rem;
+    background: #0071c2;
+    color: white;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s;
+    margin-bottom: 0.5rem;
+}
+
+.upload-label:hover {
+    background: #003580;
+    transform: translateY(-2px);
+}
+
+.file-upload-area p {
+    color: #666;
+    margin: 0.5rem 0 0 0;
+    font-size: 0.9rem;
+}
+
+.sample-format {
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 1.5rem;
+}
+
+.sample-format h4 {
+    color: #003580;
+    margin-bottom: 1rem;
+}
+
+.sample-format pre {
+    background: #2d3748;
+    color: #e2e8f0;
+    padding: 1rem;
+    border-radius: 6px;
+    overflow-x: auto;
+    font-size: 0.85rem;
+    line-height: 1.4;
+    margin: 0;
+}
+
 .loading {
     text-align: center;
     padding: 4rem;
@@ -362,8 +506,24 @@ tr:hover {
     
     .filter-controls {
         justify-content: center;
+        gap: 0.5rem;
     }
-    
+
+    .admin-controls {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .csv-controls {
+        justify-content: center;
+    }
+
+    .filter-controls button,
+    .csv-controls button {
+        flex: 1;
+        min-width: 120px;
+    }
+
     .bookings-table {
         padding: 1rem;
         overflow-x: auto;

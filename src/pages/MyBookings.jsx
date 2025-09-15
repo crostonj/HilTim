@@ -64,24 +64,28 @@ const MyBookings = () => {
     navigate('/booking?modify=true');
   };
 
-  const handleCancelBooking = (booking) => {
+  const handleCancelBooking = async (booking) => {
     const isConfirmed = window.confirm(`Are you sure you want to cancel booking ${booking.id}?\n\nRoom: ${booking.roomType}\nDates: ${formatDate(booking.checkIn)} - ${formatDate(booking.checkOut)}\n\nThis action cannot be undone.`);
     
     if (isConfirmed) {
-      const result = bookingService.deleteBooking(booking.id);
-      
-      if (result.success) {
-        // Update local state to reflect the cancellation
-        setBookings(prevBookings => 
-          prevBookings.map(b => 
-            b.id === booking.id 
-              ? { ...b, status: 'cancelled' }
-              : b
-          )
-        );
-        alert(`${result.message}\n\nBooking ${booking.id} has been cancelled successfully.`);
-      } else {
-        alert(`Error cancelling booking: ${result.error}`);
+      try {
+        const result = await bookingService.deleteBooking(booking.id);
+        
+        if (result.success) {
+          // Update local state to reflect the cancellation
+          setBookings(prevBookings => 
+            prevBookings.map(b => 
+              b.id === booking.id 
+                ? { ...b, status: 'cancelled' }
+                : b
+            )
+          );
+          alert(`${result.message}\n\nBooking ${booking.id} has been cancelled successfully.\nYour CSV database has been updated.`);
+        } else {
+          alert(`Error cancelling booking: ${result.error}`);
+        }
+      } catch (error) {
+        alert(`Error cancelling booking: ${error.message}`);
       }
     }
   };

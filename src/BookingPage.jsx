@@ -109,7 +109,7 @@ const BookingPage = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     
     if (!isLoggedIn) {
@@ -143,44 +143,50 @@ const BookingPage = () => {
       return;
     }
     
-    // Handle booking creation or modification using service
-    if (isModifyMode) {
-      const result = bookingService.updateBooking(originalBookingId, bookingData);
-      
-      if (result.success) {
-        alert(`Booking ${originalBookingId} successfully updated for ${currentUser.firstName}!
+    try {
+      // Handle booking creation or modification using service
+      if (isModifyMode) {
+        const result = await bookingService.updateBooking(originalBookingId, bookingData);
         
-        Updated Details:
-        Room: ${bookingData.roomType} 
-        Check-in: ${bookingData.checkIn}
-        Check-out: ${bookingData.checkOut}
-        Nights: ${nights}
-        Total: $${totalPrice}
-        
-        A confirmation email with your updated reservation details has been sent to ${currentUser.email}.`);
-        
-        // Navigate back to My Bookings
-        navigate('/my-bookings');
+        if (result.success) {
+          alert(`Booking ${originalBookingId} successfully updated for ${currentUser.firstName}!
+          
+          Updated Details:
+          Room: ${bookingData.roomType} 
+          Check-in: ${bookingData.checkIn}
+          Check-out: ${bookingData.checkOut}
+          Nights: ${nights}
+          Total: $${totalPrice}
+          
+          Your CSV database has been updated with the changes.
+          A confirmation email with your updated reservation details has been sent to ${currentUser.email}.`);
+          
+          // Navigate back to My Bookings
+          navigate('/my-bookings');
+        } else {
+          alert(`Error updating booking: ${result.error}`);
+        }
       } else {
-        alert(`Error updating booking: ${result.error}`);
-      }
-    } else {
-      const result = bookingService.createBooking(bookingData);
-      
-      if (result.success) {
-        alert(`Booking confirmed for ${currentUser.firstName}! 
-        Booking ID: ${result.booking.id}
-        Room: ${bookingData.roomType} 
-        Nights: ${nights}
-        Total: $${totalPrice}
+        const result = await bookingService.createBooking(bookingData);
         
-        We will send a confirmation email to ${currentUser.email}.`);
-        
-        // Navigate to My Bookings to show the new booking
-        navigate('/my-bookings');
-      } else {
-        alert(`Error creating booking: ${result.error}`);
+        if (result.success) {
+          alert(`Booking confirmed for ${currentUser.firstName}! 
+          Booking ID: ${result.booking.id}
+          Room: ${bookingData.roomType} 
+          Nights: ${nights}
+          Total: $${totalPrice}
+          
+          Your booking has been saved to the CSV database.
+          We will send a confirmation email to ${currentUser.email}.`);
+          
+          // Navigate to My Bookings to show the new booking
+          navigate('/my-bookings');
+        } else {
+          alert(`Error creating booking: ${result.error}`);
+        }
       }
+    } catch (error) {
+      alert(`Error processing booking: ${error.message}`);
     }
   };
 
