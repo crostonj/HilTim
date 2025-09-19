@@ -1,50 +1,115 @@
-# [PROJECT_NAME] Constitution
-<!-- Example: Spec Constitution, TaskFlow Constitution, etc. -->
+# Static WebApp Constitution
 
 ## Core Principles
 
-### [PRINCIPLE_1_NAME]
-<!-- Example: I. Library-First -->
-[PRINCIPLE_1_DESCRIPTION]
-<!-- Example: Every feature starts as a standalone library; Libraries must be self-contained, independently testable, documented; Clear purpose required - no organizational-only libraries -->
+### I. Minimal Dependencies (NON-NEGOTIABLE)
+Static webapps must use the absolute minimum number of external dependencies. Every dependency must be explicitly justified by a specific need that cannot be met with native web technologies. Prefer vanilla solutions over libraries when possible.
+- Runtime dependencies limited to essential frameworks only (React, Vue, etc.)
+- Build dependencies must serve specific, measurable purposes
+- No dependencies for functionality available in modern browsers
+- Regular dependency audits and removal of unused packages
 
-### [PRINCIPLE_2_NAME]
-<!-- Example: II. CLI Interface -->
-[PRINCIPLE_2_DESCRIPTION]
-<!-- Example: Every library exposes functionality via CLI; Text in/out protocol: stdin/args → stdout, errors → stderr; Support JSON + human-readable formats -->
+### II. Component-First Architecture
+Every UI element starts as a reusable, self-contained component with clear responsibilities and interfaces.
+- Components must be independently testable and documented
+- Clear separation between presentational and container components  
+- Props interface must be explicitly typed (TypeScript preferred)
+- No shared mutable state between components except through defined patterns
 
-### [PRINCIPLE_3_NAME]
-<!-- Example: III. Test-First (NON-NEGOTIABLE) -->
-[PRINCIPLE_3_DESCRIPTION]
-<!-- Example: TDD mandatory: Tests written → User approved → Tests fail → Then implement; Red-Green-Refactor cycle strictly enforced -->
+### III. Static-First Design
+Applications must be designed to work as static sites first, with dynamic features as progressive enhancements.
+- Core functionality must work without JavaScript enabled
+- Progressive enhancement for interactivity
+- Static generation preferred over client-side rendering for content
+- Graceful degradation for advanced features
 
-### [PRINCIPLE_4_NAME]
-<!-- Example: IV. Integration Testing -->
-[PRINCIPLE_4_DESCRIPTION]
-<!-- Example: Focus areas requiring integration tests: New library contract tests, Contract changes, Inter-service communication, Shared schemas -->
+### IV. Performance Budget (NON-NEGOTIABLE)
+All static webapps must meet performance targets measured on typical user devices and connections.
+- Initial page load: <3 seconds on 3G connection
+- Bundle size: <250KB gzipped JavaScript, <100KB CSS
+- Lighthouse Performance score: >90
+- Core Web Vitals: All metrics in "Good" range
 
-### [PRINCIPLE_5_NAME]
-<!-- Example: V. Observability, VI. Versioning & Breaking Changes, VII. Simplicity -->
-[PRINCIPLE_5_DESCRIPTION]
-<!-- Example: Text I/O ensures debuggability; Structured logging required; Or: MAJOR.MINOR.BUILD format; Or: Start simple, YAGNI principles -->
+### V. Accessibility Compliance
+Applications must be usable by everyone, including users with disabilities.
+- WCAG 2.1 AA compliance mandatory
+- Semantic HTML structure required
+- Keyboard navigation support for all interactive elements
+- Screen reader compatibility tested
+- Color contrast ratios meet accessibility standards
 
-## [SECTION_2_NAME]
-<!-- Example: Additional Constraints, Security Requirements, Performance Standards, etc. -->
+## Technology Constraints
 
-[SECTION_2_CONTENT]
-<!-- Example: Technology stack requirements, compliance standards, deployment policies, etc. -->
+### Approved Technologies
+- **Build Tools**: Vite, Webpack, Parcel (choose one based on project needs)
+- **Frameworks**: React, Vue, Svelte, or vanilla JavaScript only
+- **Styling**: CSS3, CSS Modules, or PostCSS (no CSS-in-JS libraries)
+- **Testing**: Vitest, Jest, Playwright, or framework-native testing tools
+- **TypeScript**: Encouraged for type safety and developer experience
 
-## [SECTION_3_NAME]
-<!-- Example: Development Workflow, Review Process, Quality Gates, etc. -->
+### Forbidden Technologies
+- Heavy UI libraries (Material-UI, Ant Design) - use minimal component libraries only
+- CSS-in-JS runtime libraries (styled-components, emotion) - build-time solutions acceptable
+- Large utility libraries (Lodash, moment.js) - use native alternatives or tree-shakeable imports
+- jQuery and similar DOM manipulation libraries
+- Client-side only routing that breaks browser navigation
 
-[SECTION_3_CONTENT]
-<!-- Example: Code review requirements, testing gates, deployment approval process, etc. -->
+### Performance Requirements
+- Bundle analysis required for all builds
+- Code splitting implemented for routes and large components
+- Image optimization and responsive images mandatory
+- Critical CSS inlined, non-critical CSS deferred
+- Lazy loading for below-the-fold content
+
+## Development Workflow
+
+### Code Quality Gates
+- TypeScript strict mode enabled (if using TypeScript)
+- ESLint with accessibility rules configured
+- Prettier for consistent formatting
+- Pre-commit hooks for linting and formatting
+- All components must have unit tests
+
+### Testing Requirements
+- Unit tests for all business logic and utility functions
+- Component tests for user interactions
+- Integration tests for critical user flows
+- Visual regression testing for UI components (recommended)
+- Accessibility testing included in test suites
+
+### Build and Deployment
+- Automated builds on commit/pull request
+- Static asset optimization (images, fonts, icons)
+- Bundle size monitoring and alerts for size increases
+- Performance testing in CI/CD pipeline
+- Progressive Web App features (service worker, manifest) recommended
+
+## Quality Assurance
+
+### Browser Support
+- Modern browsers (Chrome, Firefox, Safari, Edge) - last 2 versions minimum
+- Progressive enhancement for older browsers
+- Mobile-first responsive design mandatory
+- Cross-browser testing required before deployment
+
+### Security Requirements
+- Content Security Policy (CSP) headers configured
+- No inline scripts or styles (except critical CSS)
+- HTTPS enforced in production
+- Dependency vulnerability scanning
+- Sanitization of user inputs and dynamic content
+
+### Monitoring and Analytics
+- Core Web Vitals monitoring in production
+- Error tracking and reporting
+- Performance monitoring and alerting
+- User analytics (with privacy compliance)
+- Lighthouse CI integration for continuous performance monitoring
 
 ## Governance
-<!-- Example: Constitution supersedes all other practices; Amendments require documentation, approval, migration plan -->
 
-[GOVERNANCE_RULES]
-<!-- Example: All PRs/reviews must verify compliance; Complexity must be justified; Use [GUIDANCE_FILE] for runtime development guidance -->
+This constitution supersedes all other development practices. All code reviews and architectural decisions must verify compliance with these principles. Any deviations must be documented with explicit justification and approved through the standard review process.
 
-**Version**: [CONSTITUTION_VERSION] | **Ratified**: [RATIFICATION_DATE] | **Last Amended**: [LAST_AMENDED_DATE]
-<!-- Example: Version: 2.1.1 | Ratified: 2025-06-13 | Last Amended: 2025-07-16 -->
+Complexity that violates these principles must demonstrate clear business value that cannot be achieved through simpler means. Technical debt introduced must have a defined remediation plan.
+
+**Version**: 1.0.0 | **Ratified**: September 18, 2025 | **Last Amended**: September 18, 2025
